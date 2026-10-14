@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Top-paying states</h1>
+  <p class="sub">Average reported monthly top-up by state (on top of the federal allawee), ranked highest first.</p>
+
+  <form method="GET" action="{{ url_for('stats') }}" class="form inline-form">
+    <select name="sector">
+      <option value="">All sectors</option>
+      {% for code, name in sectors.items() %}<option value="{{ code }}" {{ 'selected' if code == sector }}>{{ name }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn-primary small">Filter</button>
+  </form>
+
+  <div class="stats-summary">
+    <div class="stat-card"><div class="label">Total reviews</div><div class="value">{{ total_reviews }}</div></div>
+  </div>
+
+  {% if top_states %}
+    <table class="overview-table">
+      <thead><tr><th>#</th><th>State</th><th>Avg top-up</th><th>Reviews</th></tr></thead>
+      <tbody>
+        {% for row in top_states %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ row.state }}</td>
+          <td><strong>₦{{ "{:,.0f}".format(row.avg_topup) }}</strong></td>
+          <td>{{ row.review_count }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-note">No top-up data reported yet for this filter.</p>
+  {% endif %}
+</section>
+{% endblock %}

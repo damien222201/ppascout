@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Browse by state</h1>
+  <p class="sub">PPAs reviewed in a state, best-rated first.</p>
+
+  <form method="GET" action="{{ url_for('browse') }}" class="form inline-form">
+    <select name="state" required>
+      <option value="" disabled {{ 'selected' if not state }}>Select state</option>
+      {% for s in states %}<option value="{{ s }}" {{ 'selected' if s == state }}>{{ s }}</option>{% endfor %}
+    </select>
+    <select name="sector">
+      <option value="">All sectors</option>
+      {% for code, name in sectors.items() %}<option value="{{ code }}" {{ 'selected' if code == sector }}>{{ name }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn-primary small">Browse</button>
+  </form>
+
+  {% if state %}
+    {% if results %}
+      <div class="ppa-list">
+        {% for item in results %}
+        <div class="ppa-card">
+          <div class="ppa-card-top">
+            <div>
+              <strong>{{ item.ppa_name }}</strong>
+              <span class="sector-tag">{{ sectors[item.sector] }}</span>
+            </div>
+            <div class="rating">{{ '★' * item.avg_rating|round(0,'floor')|int }}{{ '☆' * (5 - item.avg_rating|round(0,'floor')|int) }} <span class="rating-num">{{ "%.1f"|format(item.avg_rating) }}</span></div>
+          </div>
+          <div class="ppa-meta">
+            {% if item.avg_topup %}Avg top-up: <strong>₦{{ "{:,.0f}".format(item.avg_topup) }}</strong>/month · {% endif %}
+            {{ "Accommodation sometimes provided" if item.any_accommodation else "No accommodation reported" }} ·
+            {{ item.review_count }} review{{ 's' if item.review_count != 1 }}
+          </div>
+          {% if item.latest_review.review %}<div class="ppa-note">"{{ item.latest_review.review }}"</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-note">No reviews yet for {{ state }}. Be the first to <a href="{{ url_for('index') }}">review one</a>.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
